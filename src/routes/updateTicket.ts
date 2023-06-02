@@ -1,4 +1,5 @@
 import {
+  BadRequestError,
   NotFoundError,
   UnAuthorisedError,
   authorisedCheck,
@@ -29,6 +30,10 @@ router.put(
       return next(new NotFoundError());
     }
 
+    if (ticket.orderId) { 
+      return next(new BadRequestError('Cannot update a reserved ticket'));
+    }
+
     if (ticket.userId != req.currentUser!.id) {
       return next(new UnAuthorisedError());
     }
@@ -42,7 +47,8 @@ router.put(
       id: ticket.id,
       title: ticket.title,
       price: ticket.price,
-      userId: ticket.userId
+      userId: ticket.userId,
+      version: ticket.version
     })
 
     res.send(ticket);
