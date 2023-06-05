@@ -18,14 +18,17 @@ router.post(
     body("price")
       .isFloat({ gt: 0 })
       .withMessage("Price must be greater than 0!"),
+    body("description").notEmpty().withMessage("Description cannot be empty"),
   ],
   validateRequest,
   async (req: Request, res: Response) => {
-    const { title, price } = req.body;
+    const { title, price, description } = req.body;
     const ticket = Ticket.build({
       title,
       price,
       userId: req.currentUser!.id,
+      userFullName: `${req.currentUser!.firstName} ${req.currentUser!.lastName}`,
+      description
     });
 
     await ticket.save();
@@ -34,7 +37,7 @@ router.post(
       title: ticket.title,
       price: ticket.price,
       userId: ticket.userId,
-      version: ticket.version
+      version: ticket.version,
     });
 
     res.status(201).send(ticket);
